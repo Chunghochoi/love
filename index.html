@@ -4,43 +4,608 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gacha Tình Yêu</title>
-    <link rel="stylesheet" href="style.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(180deg, #ffeaa7 0%, #fdcb6e 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            color: #d63031;
+            font-size: 32px;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .gacha-machine {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+            perspective: 1000px;
+            filter: drop-shadow(0 25px 50px rgba(0, 0, 0, 0.4));
+        }
+
+        .gacha-top {
+            background: linear-gradient(145deg, #ff6b6b, #ee5a6f);
+            width: 200px;
+            height: 60px;
+            border-radius: 100px 100px 0 0;
+            margin: 0 auto;
+            position: relative;
+            border: 4px solid #8b2e3d;
+            box-shadow: 0 4px 0 #8b2e3d;
+        }
+
+        .gacha-knob {
+            position: absolute;
+            top: -20px;
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(145deg, #ff8787, #ff6b6b);
+            border-radius: 50%;
+            border: 4px solid #8b2e3d;
+            box-shadow: 0 4px 0 #8b2e3d;
+        }
+
+        .gacha-globe {
+            width: 100%;
+            max-width: 350px;
+            height: 350px;
+            margin: 0 auto;
+            background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.8), transparent 50%),
+                        radial-gradient(circle at 70% 70%, rgba(255, 255, 255, 0.4), transparent 60%),
+                        linear-gradient(145deg, rgba(227, 242, 253, 0.7), rgba(187, 222, 251, 0.9));
+            border-radius: 50%;
+            border: 6px solid #5d2e46;
+            box-shadow: inset 0 10px 30px rgba(255, 255, 255, 0.6),
+                        inset 0 -10px 20px rgba(0, 0, 0, 0.1),
+                        0 15px 40px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .gacha-globe::before {
+            content: '';
+            position: absolute;
+            top: 10%;
+            left: 15%;
+            width: 40%;
+            height: 40%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.6), transparent 70%);
+            border-radius: 50%;
+            filter: blur(20px);
+        }
+        
+        .gacha-globe::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 30%;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.05), transparent);
+            border-radius: 0 0 50% 50%;
+        }
+
+        .ball-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+        }
+
+        .ball {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4),
+                        inset -3px -3px 8px rgba(0, 0, 0, 0.3),
+                        inset 3px 3px 8px rgba(255, 255, 255, 0.6);
+            cursor: pointer;
+        }
+        
+        .ball::before {
+            content: '';
+            position: absolute;
+            top: 8px;
+            left: 12px;
+            width: 20px;
+            height: 20px;
+            background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.8), transparent);
+            border-radius: 50%;
+            filter: blur(3px);
+        }
+
+        .ball:hover {
+            transform: scale(1.05);
+        }
+
+        .ball.ball-1 { background: linear-gradient(145deg, #74b9ff, #0984e3); }
+        .ball.ball-2 { background: linear-gradient(145deg, #a29bfe, #6c5ce7); }
+        .ball.ball-3 { background: linear-gradient(145deg, #55efc4, #00b894); }
+        .ball.ball-4 { background: linear-gradient(145deg, #fd79a8, #e84393); }
+        .ball.ball-5 { background: linear-gradient(145deg, #fdcb6e, #f39c12); }
+        .ball.ball-6 { background: linear-gradient(145deg, #fab1a0, #e17055); }
+
+        @keyframes float {
+            0% { 
+                transform: translate(0, 0) rotate(0deg);
+            }
+            25% { 
+                transform: translate(var(--float-x1), var(--float-y1)) rotate(90deg);
+            }
+            50% { 
+                transform: translate(var(--float-x2), var(--float-y2)) rotate(180deg);
+            }
+            75% { 
+                transform: translate(var(--float-x3), var(--float-y3)) rotate(270deg);
+            }
+            100% { 
+                transform: translate(0, 0) rotate(360deg);
+            }
+        }
+        
+        .ball.floating {
+            animation: float var(--float-duration) ease-in-out infinite;
+        }
+
+        .ball.dispensing {
+            animation: dispense 1s ease-out forwards;
+        }
+
+        @keyframes dispense {
+            0% {
+                transform: translateY(0) scale(1);
+            }
+            50% {
+                transform: translateY(200px) scale(1.2);
+            }
+            100% {
+                transform: translateY(400px) scale(1);
+                opacity: 0;
+            }
+        }
+
+        .gacha-base {
+            background: linear-gradient(145deg, #ff6b6b, #ee5a6f);
+            width: 100%;
+            max-width: 320px;
+            height: 120px;
+            margin: -30px auto 0;
+            border-radius: 20px;
+            border: 6px solid #5d2e46;
+            position: relative;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .gacha-badge {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(145deg, #dfe6e9, #b2bec3);
+            border-radius: 50%;
+            border: 3px solid #5d2e46;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .gacha-door {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 60px;
+            background: linear-gradient(145deg, #dfe6e9, #b2bec3);
+            border-radius: 10px 10px 40px 40px;
+            border: 3px solid #5d2e46;
+        }
+
+        .dispense-area {
+            width: 200px;
+            height: 80px;
+            margin: 20px auto;
+            background: rgba(255, 255, 255, 0.8);
+            border: 3px dashed #5d2e46;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: #5d2e46;
+            position: relative;
+        }
+
+        .dispensed-ball {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            animation: appear 0.5s ease-out;
+        }
+
+        .dispensed-ball:hover {
+            transform: scale(1.1);
+        }
+
+        @keyframes appear {
+            from {
+                transform: scale(0);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .controls {
+            margin-top: 30px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+            color: white;
+            border: 3px solid #5d2e46;
+            padding: 15px 40px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            margin: 10px 5px;
+            box-shadow: 0 5px 0 #5d2e46;
+            transition: all 0.1s ease;
+            width: calc(100% - 10px);
+            max-width: 300px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 7px 0 #5d2e46;
+        }
+
+        .btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 2px 0 #5d2e46;
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            box-shadow: 0 5px 0 #999;
+        }
+
+        .counter {
+            display: none;
+        }
+
+        .letter-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .letter-modal.show {
+            display: flex;
+        }
+
+        .letter-content {
+            background: linear-gradient(145deg, #fff, #ffe5e5);
+            padding: 40px 30px;
+            border-radius: 20px;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            border: 5px solid #d63031;
+            position: relative;
+            animation: letterOpen 0.5s ease-out;
+        }
+
+        @keyframes letterOpen {
+            from {
+                transform: scale(0.5) rotateX(-90deg);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1) rotateX(0);
+                opacity: 1;
+            }
+        }
+
+        .letter-header {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        .letter-number {
+            font-size: 32px;
+            color: #d63031;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+
+        .letter-message {
+            font-size: 18px;
+            line-height: 1.6;
+            color: #333;
+            margin-bottom: 30px;
+            text-align: left;
+        }
+
+        .close-btn {
+            background: linear-gradient(135deg, #d63031, #c0392b);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 25px;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .close-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
+        }
+
+        .url-input-group {
+            display: none;
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 24px;
+            }
+
+            .gacha-globe {
+                max-width: 300px;
+                height: 300px;
+            }
+
+            .ball {
+                width: 40px;
+                height: 40px;
+                font-size: 14px;
+            }
+
+            .letter-content {
+                padding: 30px 20px;
+            }
+
+            .letter-message {
+                font-size: 16px;
+            }
+        }
+    </style>
 </head>
 <body>
-    <div class="gacha-container">
-        <h1>Gacha Tình Yêu</h1>
+    <div class="container">
+        <h1>💕 Gacha Tình Yêu 💕</h1>
+
         <div class="gacha-machine">
-            <div class="gacha-glass">
-                <div class="gumball-container">
-                    </div>
+            <div class="gacha-top">
+                <div class="gacha-knob"></div>
             </div>
-            <div class="gacha-body">
-                <div class="gacha-lever" id="lever">
-                    <div class="handle"></div>
-                </div>
-                <div class="gacha-output-slot"></div>
+            
+            <div class="gacha-globe">
+                <div class="ball-container" id="ballContainer"></div>
             </div>
-            <div class="gacha-base"></div>
+            
+            <div class="gacha-base">
+                <div class="gacha-badge">💌</div>
+                <div class="gacha-door"></div>
+            </div>
         </div>
-        
+
+        <div class="dispense-area" id="dispenseArea">
+            Nhấn quay để nhận bóng!
+        </div>
+
+        <div class="counter">
+            Đã mở: <span id="counter">0</span> / 6 thư
+        </div>
+
+        <div class="url-input-group">
+            <label for="redirectUrl">Link chuyển hướng (sau khi mở đủ 6 thư):</label>
+            <input type="url" id="redirectUrl" placeholder="https://example.com" value="https://www.google.com">
+        </div>
+
         <div class="controls">
-            <button id="minus-btn">-</button>
-            <span id="pull-count">1</span>
-            <button id="plus-btn">+</button>
-        </div>
-
-        <div class="output-area" id="output-area">
-            </div>
-         <p class="remaining-candies">Số kẹo còn lại: <span id="remaining-count">20</span></p>
-    </div>
-
-    <div id="message-modal" class="modal">
-        <div class="modal-content">
-            <p id="message-text"></p>
-            <button id="close-modal">❤️</button>
+            <button class="btn" id="spinBtn" onclick="dispenseBall()">🎰 Quay Bóng!</button>
+            <button class="btn" onclick="reset()" style="background: linear-gradient(135deg, #fdcb6e, #f39c12); box-shadow: 0 5px 0 #5d2e46;">🔄 Chơi Lại</button>
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <div class="letter-modal" id="letterModal">
+        <div class="letter-content">
+            <div class="letter-header">💌</div>
+            <div class="letter-number">Thư số <span id="letterNumber">1</span></div>
+            <div class="letter-message" id="letterMessage"></div>
+            <button class="close-btn" onclick="closeLetter()">Đóng</button>
+        </div>
+    </div>
+
+    <script>
+        const loveMessages = {
+            1: "Tình yêu không phải là tìm kiếm một người hoàn hảo, mà là học cách yêu một người không hoàn hảo một cách hoàn hảo. ❤️",
+            2: "Trong cuộc đời này, có một người luôn ở bên bạn qua mọi thăng trầm. Hãy trân trọng người đó! 💕",
+            3: "Hạnh phúc lớn nhất là được yêu và được yêu lại. Hãy mở lòng và để tình yêu đến với bạn! 🌹",
+            4: "Mỗi ngày bên nhau là một món quà. Hãy tận hưởng từng khoảnh khắc! 💝",
+            5: "Tình yêu thật sự không cần lời nói, chỉ cần hành động và sự quan tâm chân thành. 💖",
+            6: "Bạn là người đặc biệt! Hãy tin vào tình yêu và mở lòng đón nhận điều tuyệt vời! ✨💗"
+        };
+
+        let openedCount = 0;
+        let availableNumbers = [1, 2, 3, 4, 5, 6];
+        let dispensedBall = null;
+
+        function initBalls() {
+            const container = document.getElementById('ballContainer');
+            container.innerHTML = '';
+            
+            availableNumbers.forEach((num, index) => {
+                const ball = document.createElement('div');
+                ball.className = `ball ball-${num} floating`;
+                ball.textContent = num;
+                ball.dataset.number = num;
+                
+                const angle = (index / 6) * 2 * Math.PI;
+                const radius = 80 + Math.random() * 30;
+                const centerX = 150;
+                const centerY = 150;
+                
+                ball.style.left = (centerX + radius * Math.cos(angle) - 25) + 'px';
+                ball.style.top = (centerY + radius * Math.sin(angle) - 25) + 'px';
+                
+                const floatX1 = (Math.random() - 0.5) * 60;
+                const floatY1 = (Math.random() - 0.5) * 60;
+                const floatX2 = (Math.random() - 0.5) * 80;
+                const floatY2 = (Math.random() - 0.5) * 80;
+                const floatX3 = (Math.random() - 0.5) * 60;
+                const floatY3 = (Math.random() - 0.5) * 60;
+                const duration = 8 + Math.random() * 6;
+                
+                ball.style.setProperty('--float-x1', floatX1 + 'px');
+                ball.style.setProperty('--float-y1', floatY1 + 'px');
+                ball.style.setProperty('--float-x2', floatX2 + 'px');
+                ball.style.setProperty('--float-y2', floatY2 + 'px');
+                ball.style.setProperty('--float-x3', floatX3 + 'px');
+                ball.style.setProperty('--float-y3', floatY3 + 'px');
+                ball.style.setProperty('--float-duration', duration + 's');
+                ball.style.animationDelay = (index * 0.5) + 's';
+                
+                container.appendChild(ball);
+            });
+        }
+
+        function dispenseBall() {
+            if (availableNumbers.length === 0) {
+                alert('Tất cả các bóng đã được quay!');
+                return;
+            }
+
+            if (dispensedBall) {
+                alert('Vui lòng nhấn vào bóng để mở thư trước khi quay tiếp!');
+                return;
+            }
+
+            document.getElementById('spinBtn').disabled = true;
+
+            const randomIndex = Math.floor(Math.random() * availableNumbers.length);
+            const selectedNumber = availableNumbers[randomIndex];
+            availableNumbers.splice(randomIndex, 1);
+
+            const balls = document.querySelectorAll('.ball');
+            balls.forEach(ball => {
+                if (parseInt(ball.dataset.number) === selectedNumber) {
+                    ball.classList.add('dispensing');
+                    
+                    setTimeout(() => {
+                        ball.style.display = 'none';
+                        showDispensedBall(selectedNumber);
+                    }, 1000);
+                }
+            });
+        }
+
+        function showDispensedBall(number) {
+            const dispenseArea = document.getElementById('dispenseArea');
+            dispenseArea.innerHTML = '';
+            
+            const ball = document.createElement('div');
+            ball.className = `dispensed-ball ball-${number}`;
+            ball.textContent = number;
+            ball.dataset.number = number;
+            ball.onclick = () => openLetter(number);
+            
+            dispenseArea.appendChild(ball);
+            dispensedBall = number;
+            
+            document.getElementById('spinBtn').disabled = false;
+        }
+
+        function openLetter(number) {
+            openedCount++;
+            document.getElementById('counter').textContent = openedCount;
+            document.getElementById('letterNumber').textContent = number;
+            document.getElementById('letterMessage').textContent = loveMessages[number];
+            document.getElementById('letterModal').classList.add('show');
+            
+            const dispenseArea = document.getElementById('dispenseArea');
+            dispenseArea.innerHTML = 'Nhấn quay để nhận bóng tiếp theo!';
+            dispensedBall = null;
+
+            if (openedCount === 6) {
+                setTimeout(() => {
+                    window.location.href = 'https://www.google.com';
+                }, 2000);
+            }
+        }
+
+        function closeLetter() {
+            document.getElementById('letterModal').classList.remove('show');
+        }
+
+        function reset() {
+            openedCount = 0;
+            availableNumbers = [1, 2, 3, 4, 5, 6];
+            dispensedBall = null;
+            document.getElementById('counter').textContent = '0';
+            document.getElementById('dispenseArea').innerHTML = 'Nhấn quay để nhận bóng!';
+            initBalls();
+        }
+
+        document.getElementById('letterModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeLetter();
+            }
+        });
+
+        initBalls();
+    </script>
 </body>
 </html>
