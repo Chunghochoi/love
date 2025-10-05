@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gacha Tình Yêu</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="gacha-container">
+        <h1>Gacha Tình Yêu</h1>
+        <div class="gacha-machine">
+            <div class="gacha-glass">
+                <div class="gumball-container">
+                    </div>
+            </div>
+            <div class="gacha-body">
+                <div class="gacha-lever" id="lever">
+                    <div class="handle"></div>
+                </div>
+                <div class="gacha-output-slot"></div>
+            </div>
+            <div class="gacha-base"></div>
+        </div>
+        
+        <div class="controls">
+            <button id="minus-btn">-</button>
+            <span id="pull-count">1</span>
+            <button id="plus-btn">+</button>
+        </div>
+
+        <div class="output-area" id="output-area">
+            </div>
+         <p class="remaining-candies">Số kẹo còn lại: <span id="remaining-count">20</span></p>
+    </div>
+
+    <div id="message-modal" class="modal">
+        <div class="modal-content">
+            <p id="message-text"></p>
+            <button id="close-modal">❤️</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
